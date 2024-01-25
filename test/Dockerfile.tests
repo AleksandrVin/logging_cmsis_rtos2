@@ -1,0 +1,27 @@
+# building stm32 application
+
+FROM ubuntu:22.04 as build
+
+RUN apt update \
+    && apt install -y \
+    wget \
+    xz-utils \
+    make
+
+WORKDIR /toolkit
+
+ENV ARM_TOOLCHAIN_SOURCE https://developer.arm.com/-/media/Files/downloads/gnu/13.2.rel1/binrel/arm-gnu-toolchain-13.2.rel1-x86_64-arm-none-eabi.tar.xz?rev=e434b9ea4afc4ed7998329566b764309&hash=CA590209F5774EE1C96E6450E14A3E26
+
+# download arm-none-eabi crosscompiler toolchain
+RUN wget -O arm-none-eabi.tar.xz $ARM_TOOLCHAIN_SOURCE
+
+RUN mkdir ./arm-none-eabi
+RUN tar xvf arm-none-eabi.tar.xz --directory ./arm-none-eabi --strip-components=1
+RUN rm -rf arm-none-eabi.tar.xz
+
+ENV PATH="/toolkit/arm-none-eabi/bin:${PATH}"
+
+WORKDIR /app
+COPY ./tests_stm32 .
+
+RUN make

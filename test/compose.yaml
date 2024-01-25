@@ -1,0 +1,30 @@
+# super simple docker compose file for building and running the app
+# use docker-compose up --build to build and run the app
+
+version: '3.8'
+
+services:
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.tests
+    image: tests
+  
+  qemu_stm32:
+    build:
+      context: .
+      dockerfile: Dockerfile.qemu_stm32
+    depends_on:
+      - tests
+    image: qemu_stm32
+
+  run_tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.run_tests
+    depends_on:
+      - qemu_stm32
+      - tests
+    ports:
+      - "3333:3333"
+    image: run_tests

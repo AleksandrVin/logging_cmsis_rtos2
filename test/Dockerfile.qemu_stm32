@@ -1,0 +1,64 @@
+FROM ubuntu:22.04 as build
+
+WORKDIR /usr/src
+
+RUN apt-get update \
+  && apt-get upgrade -y \
+  && apt-get install -y --no-install-recommends \
+  binutils-arm-none-eabi \
+  ca-certificates \
+  libnewlib-arm-none-eabi \
+  findutils \
+  gcc \
+  git \
+  libglib2.0-dev \
+  libfdt-dev \
+  libpixman-1-dev \
+  make \
+  openssh-client \
+  pkgconf \
+  python2.7-minimal \
+  zlib1g-dev
+
+RUN git clone https://github.com/beckus/qemu_stm32.git
+
+WORKDIR qemu_stm32
+
+RUN ./configure --disable-werror --enable-debug \
+  --target-list="arm-softmmu" \
+  --extra-cflags=-DSTM32_UART_NO_BAUD_DELAY \
+  --extra-cflags=-DSTM32_UART_ENABLE_OVERRUN \
+  --disable-gtk \
+  --python=/usr/bin/python2.7
+
+RUN make -j
+
+FROM ubuntu:22.04
+WORKDIR /usr/local/bin/qemu_stm32
+COPY --from=build /usr/src/qemu_stm32/arm-softmmu .
+
+RUN apt-get update
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y software-properties-common
+
+RUN add-apt-repository ppa:deadsnakes/ppa -y
+
+RUN apt-get update && \
+    apt-get upgrade -y
+
+# set TZ to get rid of tzdata interactive dialog. Set to universal time.
+ENV TZ=Etc/UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN apt-get install -y --no-install-recommends \
+    libglib2.0-dev \
+    libfdt-dev \
+    libpixman-1-dev \
+    libncursesw5 \
+    python3.8
+#  python3.8 required for arm-none-eabi-gdb
+
+RUN apt-get install -y --no-install-recommends \
+    make
+
+WORKDIR /app
