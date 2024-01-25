@@ -25,7 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "usart.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -125,7 +125,7 @@ void StartDefaultTask(void *argument)
   {
     // blink led
     HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-    osDelay(1);
+    osDelay(500);
   }
   /* USER CODE END StartDefaultTask */
 }
