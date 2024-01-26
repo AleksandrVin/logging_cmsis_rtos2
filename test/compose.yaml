@@ -27,4 +27,5 @@ services:
       - tests
     ports:
       - "3333:3333"
+      - "7777:7777"
     image: run_tests

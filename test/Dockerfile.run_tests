@@ -18,4 +18,4 @@ ENV PATH="/usr/bin/python3.8:${PATH}"
 
 # without debug
 ENTRYPOINT ["qemu-system-arm", "-nographic", "-M", "stm32-f103c8", "-kernel", "/app/firmware.bin", \
-           "-serial", "pty"]
+           "-serial", "tcp::7777,server"]
