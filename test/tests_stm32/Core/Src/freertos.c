@@ -124,10 +124,10 @@ void StartDefaultTask(void *argument)
   for(;;)
   {
     // blink led
-    HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+    // HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
     osDelay(500);
     // print hello world
-    HAL_UART_Transmit(&huart1, (uint8_t *)"usart2: hello world\n", 20, 100);
+    HAL_UART_Transmit(&huart1, (uint8_t *)"usart1: hello world\n", 20, 100);
   }
   /* USER CODE END StartDefaultTask */
 }

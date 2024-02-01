@@ -11,11 +11,15 @@ ENV PATH="/toolkit/arm-none-eabi/bin:${PATH}"
 ENV PATH="/usr/local/bin/qemu_stm32:${PATH}"
 ENV PATH="/usr/bin/python3.8:${PATH}"
 
+WORKDIR /test
+COPY test_in_docker.sh ./
 
 # with debug. This will not work without gdb connected
 #ENTRYPOINT ["qemu-system-arm", "-nographic", "-M", "stm32-f103c8", "-gdb", "tcp::3333", "-S", "-kernel", "/app/firmware.bin", \
 #            "-serial", "pty"]
 
 # without debug
-ENTRYPOINT ["qemu-system-arm", "-nographic", "-M", "stm32-f103c8", "-kernel", "/app/firmware.bin", \
-           "-serial", "tcp::7777,server"]
+# ENTRYPOINT ["qemu-system-arm", "-nographic", "-M", "stm32-f103c8", "-kernel", "/app/firmware.bin", \
+#           "-serial", "pty"]
+
+ENTRYPOINT [ "./test_in_docker.sh" ]
