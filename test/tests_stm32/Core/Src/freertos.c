@@ -26,6 +26,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "usart.h"
+#include "logging.h"
+#include "tests.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -63,7 +65,9 @@ const osThreadAttr_t defaultTask_attributes = {
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
-
+void exit_qemu() {
+    asm("mov r0, #0x18; ldr r1, =0x20026; svc 0xAB");
+}
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
@@ -120,14 +124,18 @@ void MX_FREERTOS_Init(void) {
 void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
-  /* Infinite loop */
-  for(;;)
-  {
-    // blink led
-    // HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-    osDelay(500);
-    // print hello world
-    HAL_UART_Transmit(&huart1, (uint8_t *)"usart1: hello world\n", 20, 100);
+  logging_init();
+
+  // wait a second for serial terminal to connect in test mode
+  osDelay(1000);
+
+  logging_test();
+
+  // Log interrupt might overflow the buffer if no blocking to interface is used
+  osDelay(50);
+
+  while(1) {
+    osDelay(10);
   }
   /* USER CODE END StartDefaultTask */
 }

@@ -13,6 +13,7 @@ ENV PATH="/usr/bin/python3.8:${PATH}"
 
 WORKDIR /test
 COPY test_in_docker.sh ./
+COPY verify_output.py ./
 
 # with debug. This will not work without gdb connected
 #ENTRYPOINT ["qemu-system-arm", "-nographic", "-M", "stm32-f103c8", "-gdb", "tcp::3333", "-S", "-kernel", "/app/firmware.bin", \

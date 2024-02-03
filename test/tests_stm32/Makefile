@@ -67,7 +67,9 @@ Middlewares/Third_Party/FreeRTOS/Source/timers.c \
 Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c \
 Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3/port.c \
 Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c \
-Core/Src/stm32f1xx_hal_timebase_tim.c
+Core/Src/stm32f1xx_hal_timebase_tim.c \
+logging_cmsis_rtos2/logging.c \
+Core/Src/tests.c \
 
 # ASM sources
 ASM_SOURCES =  \
@@ -135,7 +137,8 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Include \
 -IMiddlewares/Third_Party/FreeRTOS/Source/include \
 -IMiddlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3 \
--IMiddlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2
+-IMiddlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 \
+-Ilogging_cmsis_rtos2
 
 
 # compile gcc flags

@@ -189,6 +189,8 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
+    // blink led if error
+    HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
   }
   /* USER CODE END Error_Handler_Debug */
 }

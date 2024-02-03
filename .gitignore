@@ -50,3 +50,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Local files for testing
+test/tests_stm32/logging_cmsis_rtos2/
