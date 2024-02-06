@@ -24,7 +24,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "logging.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -191,6 +191,8 @@ void Error_Handler(void)
   {
     // blink led if error
     HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+    HAL_Delay(1000);
+    LOG_FATAL("ERROR: Error_Handler\n");
   }
   /* USER CODE END Error_Handler_Debug */
 }

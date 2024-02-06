@@ -134,12 +134,12 @@ def test_logging_different_levels(ser):
 
     print("Test different levels passed")
 
-def test_logging_interrupt(ser):
+def test_logging_fatal(ser):
     # Verify the expected prints from the MC
 
     # match this pattern like this "interrupt_0"
     # where 0s.78 is the time in seconds and milliseconds that should be stored for analysis
-    pattern = r"interrupt_(\d+)"
+    pattern = r"fatal_(\d+)"
 
     for i in range(10):
         output = ser.readline().decode('utf-8')
@@ -153,6 +153,65 @@ def test_logging_interrupt(ser):
 
     print("Test interrupt passed")
 
+def test_logging_multiple_threads(ser, threads=10):
+    # create 10 thread which logs at the same time
+    # use dynamic allocation
+    names = ["logging_thread_" + str(i) for i in range(threads)]
+
+    # Verify the expected prints from the MC
+
+    # match this pattern like this "logging_thread_X: Log message"
+    # where X is the thread number and Log message is the actual log message
+    pattern = r"\[INFO\s*\]\[(\d+)s\.(\d+)\]: logging_thread_(\d+)_(\d+)"
+
+    # Create a dictionary to store the logs for each thread
+    logs = {name: [] for name in names}
+
+    # Read the output from the serial port until new line is found
+    for run in range(threads * 10):
+        output = ser.readline().decode('utf-8')
+
+        print(output)
+        if not output:
+            break
+
+        match = re.match(pattern, output)
+        if match:
+            thread_number = int(match.group(1))
+            log_message = match.group(2)
+            logs[names[thread_number]].append(log_message)
+
+    # Print the logs in a table format
+    print("Thread Logs:")
+    for name, log_messages in logs.items():
+        print(f"{name}: {log_messages}")
+
+    print("Test logging multiple threads passed")
+
+# look for ISR log message
+def test_logging_isr(ser):
+    # Verify the expected prints from the MC
+    output = ser.readline().decode('utf-8')
+
+    # match this pattern like this  "[INFO     ][0s.87]ISR: LOG_ISR_9" 
+    # only last one will be printed out of 10 logs
+    # where 0s.78 is the time in seconds and milliseconds that should be stored for analysis
+    pattern = r"\[INFO\s*\]\[(\d+)s\.(\d+)\]ISR: LOG_ISR_9"
+    match = re.match(pattern, output)
+
+    if match:
+        seconds = int(match.group(1))
+        milliseconds = int(match.group(2))
+        print(f"Time: {seconds}s.{milliseconds} level: INFO")
+        assert seconds >= 0, f"Seconds '{seconds}' should be greater than 0"
+        assert milliseconds >= 0, f"Milliseconds '{milliseconds}' should be greater than 0"
+    else:
+        assert False, f"Output '{output}' does not match the expected pattern"
+
+    print("Test ISR passed")
+
+            
+# run all test one by one
 def test_logging_test():
     # get serial device path from first argument
     ser = None
@@ -161,13 +220,14 @@ def test_logging_test():
         ser = open(serial_device, 'rb+', buffering=0)
     else:
         exit(1)
-
+        
     test_logging_basic_test(ser)
     test_logging_test_pack(ser)
     test_logging_different_levels(ser)
-    test_logging_interrupt(ser)
+    test_logging_fatal(ser)
+    test_logging_isr(ser)
+    #test_logging_multiple_threads(ser, threads=3)
 
     ser.close()
 
 test_logging_test()
-            

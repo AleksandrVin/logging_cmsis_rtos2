@@ -7,3 +7,6 @@ set -e
 
 rm -rf tests_stm32/logging_cmsis_rtos2
 cp -r ../lib/ tests_stm32/logging_cmsis_rtos2
+
+# start docker container
+docker-compose up --build

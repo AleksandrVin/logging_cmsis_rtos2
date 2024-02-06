@@ -50,7 +50,7 @@ const osThreadAttr_t loggingTask_attributes = {
     .cb_size = sizeof(loggingTaskControlBlock),
     .stack_mem = &loggingTaskBuffer[0],
     .stack_size = sizeof(loggingTaskBuffer),
-    .priority = (osPriority_t)osPriorityLow,
+    .priority = (osPriority_t)osPriorityNormal,
 };
 
 void StartLoggingTask(void *argument)
@@ -114,10 +114,10 @@ void log_ISR(const char *str, uint32_t uptime, uint32_t uptime_ms, int level)
 
 void logging_log(const char *str, uint32_t uptime, uint32_t uptime_ms, int level)
 {
-    osStatus_t status = osSemaphoreAcquire(logs_semaphore_store, LOG_SEMAPHORE_TIMEOUT);
+    osStatus_t status = osSemaphoreAcquire(logs_semaphore_store, LOG_MUTEX_TIMEOUT);
     if (status != osOK)
     {
-        LOG_FATAL("ERROR: cannot acquire logs_semaphore_store\n");
+        LOG_FATAL("ERROR log: cannot acquire logs_semaphore_store: %d\n", status);
         return;
     }
     status = osMutexAcquire(logs_mutex, LOG_MUTEX_TIMEOUT);
@@ -129,7 +129,7 @@ void logging_log(const char *str, uint32_t uptime, uint32_t uptime_ms, int level
         }
         else
         {
-            LOG_FATAL("ERROR: cannot acquire logs_mutex: %d\n", status);
+            LOG_FATAL("ERROR log: cannot acquire logs_mutex: %d\n", status);
         }
         osSemaphoreRelease(logs_semaphore_store);
         return;
@@ -147,8 +147,8 @@ void logging_log(const char *str, uint32_t uptime, uint32_t uptime_ms, int level
     {
         logs_tail = 0;
     }
-    osSemaphoreRelease(logs_semaphore_print);
     osMutexRelease(logs_mutex);
+    osSemaphoreRelease(logs_semaphore_print);
 }
 
 void logging_send_to_interface()
@@ -156,19 +156,23 @@ void logging_send_to_interface()
     // try to get logs semaphore
     if (osSemaphoreAcquire(logs_semaphore_print, osWaitForever) != osOK)
     {
+        LOG_FATAL("ERROR send: cannot acquire logs_semaphore_print\n");
         return;
     }
     osStatus_t status = osError;
     status = osMutexAcquire(interface_mutex, osWaitForever);
     if (status != osOK)
     {
-        LOG_FATAL("ERROR: can't acquire usb_cdc_mutex:%d\n", status);
+        LOG_FATAL("ERROR send: can't acquire usb_cdc_mutex:%d\n", status);
+        osSemaphoreRelease(logs_semaphore_print);
         Error_Handler();
     }
     status = osMutexAcquire(logs_mutex, osWaitForever);
     if (status != osOK)
     {
-        LOG_FATAL("ERROR: cannot acquire logs_mutex: %d\n", status);
+        LOG_FATAL("ERROR send: cannot acquire logs_mutex: %d\n", status);
+        osMutexRelease(interface_mutex);
+        osSemaphoreRelease(logs_semaphore_print);
         Error_Handler();
     }
 
@@ -189,8 +193,8 @@ void logging_send_to_interface()
             logs_head = 0;
         }
     }
-    osMutexRelease(interface_mutex);
     osMutexRelease(logs_mutex);
+    osMutexRelease(interface_mutex);
     osSemaphoreRelease(logs_semaphore_store);
 }
 
