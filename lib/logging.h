@@ -15,7 +15,7 @@
 #include "string.h"
 #include "stdio.h"
 
-#define LOG_BUFFER_SIZE 100
+#define LOG_BUFFER_SIZE 200
 
 #define LOG_QUEUE_ROWS 10
 #define LOG_MUTEX_TIMEOUT 100
@@ -30,11 +30,18 @@ extern char INTERFACE_BUFFER[INTERFACE_BUFFER_SIZE];
 
 #define UART_INTERFACE huart1
 
+// #define USE_USB_LOGGING // define this to use USB logging as an example of logging extension
+
 // #define INTERFACE_printf(...) printf(__VA_ARGS__)
-#define INTERFACE_printf(...)                           \
+#ifdef USE_USB_LOGGING
+#include "logging_usb.h"
+#else
+#define INTERFACE_printf(...)                                       \
     HAL_UART_Transmit(&UART_INTERFACE, (uint8_t *)INTERFACE_BUFFER, \
-                       snprintf((char *)INTERFACE_BUFFER, \
-                                LOG_BUFFER_SIZE, __VA_ARGS__), 100)
+                      snprintf((char *)INTERFACE_BUFFER,            \
+                               LOG_BUFFER_SIZE, __VA_ARGS__),       \
+                      100)
+#endif
 
 typedef enum log_levels
 {
@@ -57,21 +64,21 @@ void log_ISR(const char *str, uint32_t uptime, uint32_t uptime_ms, int level);
 
 // better to replace this with custom timer implementation for better performance
 #define UPTIME_MS (osKernelGetTickCount() * 1000 / osKernelGetTickFreq()) % 1000
-#define UPTIME_S osKernelGetTickCount() / osKernelGetTickFreq() 
+#define UPTIME_S osKernelGetTickCount() / osKernelGetTickFreq()
 
 // on FAILURE log does not work. Use LOG_INTERRUPT instead as native printf
-#define LOG(level, ...)                                                   \
-    if (level >= LOGGING_LEVEL)                                           \
-    {                                                                     \
-        snprintf(LOGGING_BUF, LOG_BUFFER_SIZE, __VA_ARGS__);        \
+#define LOG(level, ...)                                       \
+    if (level >= LOGGING_LEVEL)                               \
+    {                                                         \
+        snprintf(LOGGING_BUF, LOG_BUFFER_SIZE, __VA_ARGS__);  \
         logging_log(LOGGING_BUF, UPTIME_S, UPTIME_MS, level); \
     }
 
-#define LOG_ISR(level, ...)                                               \
-    if (level >= LOGGING_LEVEL)                                           \
-    {                                                                     \
-        snprintf(LOGGING_ISR_BUF, LOG_BUFFER_SIZE, __VA_ARGS__);    \
-        log_ISR(LOGGING_ISR_BUF, UPTIME_S, UPTIME_MS, level); \
+#define LOG_ISR(level, ...)                                      \
+    if (level >= LOGGING_LEVEL)                                  \
+    {                                                            \
+        snprintf(LOGGING_ISR_BUF, LOG_BUFFER_SIZE, __VA_ARGS__); \
+        log_ISR(LOGGING_ISR_BUF, UPTIME_S, UPTIME_MS, level);    \
     }
 
 void logging_init();
