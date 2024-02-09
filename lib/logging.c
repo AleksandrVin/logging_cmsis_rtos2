@@ -50,7 +50,7 @@ const osThreadAttr_t loggingTask_attributes = {
     .cb_size = sizeof(loggingTaskControlBlock),
     .stack_mem = &loggingTaskBuffer[0],
     .stack_size = sizeof(loggingTaskBuffer),
-    .priority = (osPriority_t)osPriorityNormal,
+    .priority = (osPriority_t)osPriorityAboveNormal,
 };
 
 void StartLoggingTask(void *argument)
@@ -62,7 +62,7 @@ void StartLoggingTask(void *argument)
     }
 }
 
-void logging_init(int (*interface_func)(void))
+void logging_init()
 {
     logs_tail = 0;
     logs_head = 0;
@@ -205,4 +205,9 @@ void print_swo(const char *data, const uint32_t size)
     {
         ITM_SendChar(data[i]);
     }
+}
+
+int logging_is_initialized()
+{
+    return (interface_mutex != NULL) && (logs_mutex != NULL) && (logs_semaphore_store != NULL) && (logs_semaphore_print != NULL);
 }

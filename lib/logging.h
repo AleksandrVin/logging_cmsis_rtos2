@@ -28,14 +28,15 @@ extern char LOGGING_ISR_BUF[LOG_BUFFER_SIZE];
 #define INTERFACE_BUFFER_SIZE (200 + 20)
 extern char INTERFACE_BUFFER[INTERFACE_BUFFER_SIZE];
 
-#define UART_INTERFACE huart1
-
 // #define USE_USB_LOGGING // define this to use USB logging as an example of logging extension
 
 // #define INTERFACE_printf(...) printf(__VA_ARGS__)
-#ifdef USE_USB_LOGGING
+#ifdef LOGGING_USE_USB
 #include "logging_usb.h"
+#elif defined LOGGING_USE_CUSTOM_INTERFACE
+#include "logging_custom_interface.h"
 #else
+#define UART_INTERFACE huart1
 #define INTERFACE_printf(...)                                       \
     HAL_UART_Transmit(&UART_INTERFACE, (uint8_t *)INTERFACE_BUFFER, \
                       snprintf((char *)INTERFACE_BUFFER,            \
@@ -83,6 +84,7 @@ void log_ISR(const char *str, uint32_t uptime, uint32_t uptime_ms, int level);
 
 void logging_init();
 void logging_send_to_interface();
+int  logging_is_initialized();
 
 void print_swo(const char *data, const uint32_t size);
 
