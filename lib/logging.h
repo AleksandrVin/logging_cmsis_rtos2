@@ -37,7 +37,7 @@ extern char INTERFACE_BUFFER[INTERFACE_BUFFER_SIZE];
 #include "logging_custom_interface.h"
 #else
 #define UART_INTERFACE huart1
-#define INTERFACE_printf(...)                                       \
+#define INTERFACE_printf(FATAL_FLAG, ...)                                       \
     HAL_UART_Transmit(&UART_INTERFACE, (uint8_t *)INTERFACE_BUFFER, \
                       snprintf((char *)INTERFACE_BUFFER,            \
                                LOG_BUFFER_SIZE, __VA_ARGS__),       \
@@ -58,10 +58,13 @@ typedef enum log_levels
 // switch logging level. Only level above or equal to this will be printed
 #define LOGGING_LEVEL DEBUG_ALL
 
+#define FATAL_FLAG_SET 1
+#define FATAL_FLAG_CLEAR 0
+
 void logging_log(const char *str, uint32_t uptime, uint32_t uptime_ms, int level);
 void log_ISR(const char *str, uint32_t uptime, uint32_t uptime_ms, int level);
 
-#define LOG_FATAL(...) INTERFACE_printf(__VA_ARGS__)
+#define LOG_FATAL(...) INTERFACE_printf(FATAL_FLAG_SET, __VA_ARGS__)
 
 // better to replace this with custom timer implementation for better performance
 #define UPTIME_MS (osKernelGetTickCount() * 1000 / osKernelGetTickFreq()) % 1000

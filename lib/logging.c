@@ -6,7 +6,7 @@
 
 char LOGGING_BUF[LOG_BUFFER_SIZE] = "\0";
 char LOGGING_ISR_BUF[LOG_BUFFER_SIZE] = "\0";
-char INTERFACE_BUFFER[INTERFACE_BUFFER_SIZE] = "\0"; 
+char INTERFACE_BUFFER[INTERFACE_BUFFER_SIZE] = "\0";
 
 char log_circular_buf[LOG_QUEUE_ROWS][LOG_BUFFER_SIZE] = {0};
 uint32_t log_time_buf[LOG_QUEUE_ROWS] = {0};
@@ -23,37 +23,18 @@ int log_isr_level = 0;
 char log_names[ERR + 1][LOG_TYPE_SIZE] = {"DEBUG_ALL", "DEBUG_MIN", "INFO     ", "WARNING  ", "ERROR    "};
 
 osMutexId_t interface_mutex;
-const osMutexAttr_t interface_mutex_attributes = {
-    .name = "interface_mutex"};
-
 osMutexId_t logs_mutex;
-const osMutexAttr_t logs_mutex_attributes = {
-    .name = "logs_mutex"};
 
 /* Definitions for logs semaphore */
 osSemaphoreId_t logs_semaphore_store;
-const osSemaphoreAttr_t logs_attributes_producer = {
-    .name = "logs_producer"};
-
 osSemaphoreId_t logs_semaphore_print;
-const osSemaphoreAttr_t logs_attributes_consumer = {
-    .name = "logs_consumer"};
 
 typedef StaticTask_t osStaticThreadDef_t;
 
 osThreadId_t loggingTaskHandle;
-uint32_t loggingTaskBuffer[128];
-osStaticThreadDef_t loggingTaskControlBlock;
-const osThreadAttr_t loggingTask_attributes = {
-    .name = "loggingTask",
-    .cb_mem = &loggingTaskControlBlock,
-    .cb_size = sizeof(loggingTaskControlBlock),
-    .stack_mem = &loggingTaskBuffer[0],
-    .stack_size = sizeof(loggingTaskBuffer),
-    .priority = (osPriority_t)osPriorityAboveNormal,
-};
+osThreadAttr_t loggingTask_attributes;
 
-void StartLoggingTask(void *argument)
+__NO_RETURN void StartLoggingTask(void *argument)
 {
     while (1)
     {
@@ -67,32 +48,34 @@ void logging_init()
     logs_tail = 0;
     logs_head = 0;
 
-    interface_mutex = osMutexNew(&interface_mutex_attributes);
-    if(interface_mutex == NULL)
+    interface_mutex = osMutexNew(NULL);
+    if (interface_mutex == NULL)
     {
         LOG_FATAL("ERROR: cannot create interface_mutex\n");
         Error_Handler();
     }
-    logs_mutex = osMutexNew(&logs_mutex_attributes);
-    if(logs_mutex == NULL)
+    logs_mutex = osMutexNew(NULL);
+    if (logs_mutex == NULL)
     {
         LOG_FATAL("ERROR: cannot create logs_mutex\n");
         Error_Handler();
     }
-    logs_semaphore_store = osSemaphoreNew(LOG_SEMAPHORE_COUNT_MAX, LOG_SEMAPHORE_COUNT_MAX, &logs_attributes_producer);
-    if(logs_semaphore_store == NULL)
+    logs_semaphore_store = osSemaphoreNew(LOG_SEMAPHORE_COUNT_MAX, LOG_SEMAPHORE_COUNT_MAX, NULL);
+    if (logs_semaphore_store == NULL)
     {
         LOG_FATAL("ERROR: cannot create logs_semaphore_store\n");
         Error_Handler();
     }
-    logs_semaphore_print = osSemaphoreNew(LOG_SEMAPHORE_COUNT_MAX, 0, &logs_attributes_consumer);
-    if(logs_semaphore_print == NULL)
+    logs_semaphore_print = osSemaphoreNew(LOG_SEMAPHORE_COUNT_MAX, 0, NULL);
+    if (logs_semaphore_print == NULL)
     {
         LOG_FATAL("ERROR: cannot create logs_semaphore_print\n");
         Error_Handler();
     }
 
     // create thread with min priority to handle logging
+    memset(&loggingTask_attributes, 0, sizeof(loggingTask_attributes));
+    loggingTask_attributes.priority = osPriorityLow;
     loggingTaskHandle = osThreadNew(StartLoggingTask, NULL, &loggingTask_attributes);
 }
 
@@ -115,7 +98,7 @@ void log_ISR(const char *str, uint32_t uptime, uint32_t uptime_ms, int level)
 void logging_log(const char *str, uint32_t uptime, uint32_t uptime_ms, int level)
 {
     // check if logging is initialized
-    if(logging_is_initialized() == 0)
+    if (logging_is_initialized() == 0)
     {
         return;
     }
@@ -183,12 +166,12 @@ void logging_send_to_interface()
 
     if (log_isr_set)
     {
-        INTERFACE_printf("[%s][%lds.%ld]ISR: %s\n", log_names[log_isr_level], log_isr_time, log_isr_time_ms, LOGGING_ISR_BUF);
+        INTERFACE_printf(FATAL_FLAG_CLEAR, "[%s][%lds.%ld]ISR: %s\n", log_names[log_isr_level], log_isr_time, log_isr_time_ms, LOGGING_ISR_BUF);
         log_isr_set = 0;
     }
     else
     {
-        INTERFACE_printf("[%s][%lds.%ld]: %s\n", log_names[log_level_buf[logs_head]], log_time_buf[logs_head], log_time_ms_buf[logs_head], log_circular_buf[logs_head]);
+        INTERFACE_printf(FATAL_FLAG_CLEAR, "[%s][%lds.%ld]: %s\n", log_names[log_level_buf[logs_head]], log_time_buf[logs_head], log_time_ms_buf[logs_head], log_circular_buf[logs_head]);
         if (logs_head < LOG_QUEUE_ROWS - 1)
         {
             logs_head++;

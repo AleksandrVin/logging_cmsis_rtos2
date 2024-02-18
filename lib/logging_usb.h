@@ -9,7 +9,7 @@ extern char CDC_USB_TX_BUF[INTERFACE_CDC_BUFFER_SIZE];
 
 #define CDC_WAIT_FOR_PC_TO_READ 1
 
-#define INTERFACE_printf(...)                                           \
+#define INTERFACE_printf(FATAL_FLAG, ...)                                           \
     while (CDC_IsBusy() == USBD_BUSY && CDC_WAIT_FOR_PC_TO_READ == 1)   \
     {                                                                   \
         osThreadYield();                                                \
