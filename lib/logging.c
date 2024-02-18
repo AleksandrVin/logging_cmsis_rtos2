@@ -98,7 +98,7 @@ void log_ISR(const char *str, uint32_t uptime, uint32_t uptime_ms, int level)
 void logging_log(const char *str, uint32_t uptime, uint32_t uptime_ms, int level)
 {
     // check if logging is initialized
-    if (logging_is_initialized() == 0)
+    if (!logging_is_initialized() == 0)
     {
         return;
     }
