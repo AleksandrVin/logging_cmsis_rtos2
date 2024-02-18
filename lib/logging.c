@@ -32,7 +32,10 @@ osSemaphoreId_t logs_semaphore_print;
 typedef StaticTask_t osStaticThreadDef_t;
 
 osThreadId_t loggingTaskHandle;
-osThreadAttr_t loggingTask_attributes;
+osThreadAttr_t loggingTask_attributes = {
+    .name = "logging",
+    .priority = osPriorityLow
+};
 
 __NO_RETURN void StartLoggingTask(void *argument)
 {
@@ -74,8 +77,6 @@ void logging_init()
     }
 
     // create thread with min priority to handle logging
-    memset(&loggingTask_attributes, 0, sizeof(loggingTask_attributes));
-    loggingTask_attributes.priority = osPriorityLow;
     loggingTaskHandle = osThreadNew(StartLoggingTask, NULL, &loggingTask_attributes);
 }
 
@@ -98,17 +99,17 @@ void log_ISR(const char *str, uint32_t uptime, uint32_t uptime_ms, int level)
 void logging_log(const char *str, uint32_t uptime, uint32_t uptime_ms, int level)
 {
     // check if logging is initialized
-    if (!logging_is_initialized() == 0)
+    while(!logging_is_initialized())
     {
-        return;
+        osDelay(50);
     }
-    osStatus_t status = osSemaphoreAcquire(logs_semaphore_store, LOG_MUTEX_TIMEOUT);
+    osStatus_t status = osSemaphoreAcquire(logs_semaphore_store, osWaitForever);
     if (status != osOK)
     {
         LOG_FATAL("ERROR log: cannot acquire logs_semaphore_store: %d\n", status);
         return;
     }
-    status = osMutexAcquire(logs_mutex, LOG_MUTEX_TIMEOUT);
+    status = osMutexAcquire(logs_mutex, osWaitForever);
     if (status != osOK)
     {
         if (status == osErrorTimeout)
