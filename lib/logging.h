@@ -15,6 +15,8 @@
 #include "string.h"
 #include "stdio.h"
 
+#define WAIT_FOR_SET_INIT_COMMAND 1
+
 #define LOG_BUFFER_SIZE 100
 
 #define LOG_QUEUE_ROWS 5
@@ -88,7 +90,7 @@ void log_ISR(const char *str, uint32_t uptime, uint32_t uptime_ms, int level);
 void logging_init();
 void logging_send_to_interface();
 int  logging_is_initialized();
-void logging_set_usb_init();
+void logging_set_init();
 
 void print_swo(const char *data, const uint32_t size);
 
