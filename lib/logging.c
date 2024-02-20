@@ -20,6 +20,8 @@ uint32_t log_isr_time = 0;
 uint32_t log_isr_time_ms = 0;
 int log_isr_level = 0;
 
+int init_packege_received = 0;
+
 char log_names[ERR + 1][LOG_TYPE_SIZE] = {"DEBUG_ALL", "DEBUG_MIN", "INFO     ", "WARNING  ", "ERROR    "};
 
 osMutexId_t interface_mutex;
@@ -99,10 +101,6 @@ void log_ISR(const char *str, uint32_t uptime, uint32_t uptime_ms, int level)
 void logging_log(const char *str, uint32_t uptime, uint32_t uptime_ms, int level)
 {
     // check if logging is initialized
-    while(!logging_is_initialized())
-    {
-        osDelay(50);
-    }
     osStatus_t status = osSemaphoreAcquire(logs_semaphore_store, osWaitForever);
     if (status != osOK)
     {
@@ -198,5 +196,11 @@ void print_swo(const char *data, const uint32_t size)
 
 int logging_is_initialized()
 {
-    return (interface_mutex != NULL) && (logs_mutex != NULL) && (logs_semaphore_store != NULL) && (logs_semaphore_print != NULL);
+    int mutex = (interface_mutex != NULL) && (logs_mutex != NULL) && (logs_semaphore_store != NULL) && (logs_semaphore_print != NULL);
+    return mutex; // init_packege_received;
+}
+
+void logging_set_usb_init()
+{
+    init_packege_received = 1;
 }

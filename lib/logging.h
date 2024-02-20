@@ -15,17 +15,15 @@
 #include "string.h"
 #include "stdio.h"
 
-#define LOG_BUFFER_SIZE 200
+#define LOG_BUFFER_SIZE 100
 
-#define LOG_QUEUE_ROWS 10
-#define LOG_MUTEX_TIMEOUT 100
-#define LOG_SEMAPHORE_TIMEOUT 100
+#define LOG_QUEUE_ROWS 5
 #define LOG_SEMAPHORE_COUNT_MAX (LOG_QUEUE_ROWS)
 
 extern char LOGGING_BUF[LOG_BUFFER_SIZE];
 extern char LOGGING_ISR_BUF[LOG_BUFFER_SIZE];
 
-#define INTERFACE_BUFFER_SIZE (200 + 20)
+#define INTERFACE_BUFFER_SIZE (LOG_BUFFER_SIZE + 20)
 extern char INTERFACE_BUFFER[INTERFACE_BUFFER_SIZE];
 
 // #define USE_USB_LOGGING // define this to use USB logging as an example of logging extension
@@ -56,7 +54,9 @@ typedef enum log_levels
 #define LOG_TYPE_SIZE 10
 
 // switch logging level. Only level above or equal to this will be printed
+#ifndef LOGGING_LEVEL
 #define LOGGING_LEVEL DEBUG_ALL
+#endif
 
 #define FATAL_FLAG_SET 1
 #define FATAL_FLAG_CLEAR 0
@@ -88,6 +88,7 @@ void log_ISR(const char *str, uint32_t uptime, uint32_t uptime_ms, int level);
 void logging_init();
 void logging_send_to_interface();
 int  logging_is_initialized();
+void logging_set_usb_init();
 
 void print_swo(const char *data, const uint32_t size);
 
