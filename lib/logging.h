@@ -50,7 +50,8 @@ typedef enum log_levels
     DEBUG_MIN,
     INFO,
     WARNING,
-    ERR
+    ERR,
+    NONE
 } log_levels_t;
 
 #define LOG_TYPE_SIZE 10
