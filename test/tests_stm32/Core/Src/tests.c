@@ -115,5 +115,5 @@ void logging_test()
     osDelay(200); // log pass
     logging_interrupt();
     osDelay(200); // log pass
-    //logging_test_multiple_threads();
+    logging_test_multiple_threads();
 }
