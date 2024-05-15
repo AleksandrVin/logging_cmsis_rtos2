@@ -14,9 +14,11 @@ docker-compose up --build
 logs_file="logs.txt"
 compose_file="compose.yaml"
 service_name="test"
-test_container_name="$service_name-run_tests-1"
+container="run_tests-1"
+test_container_name="$service_name-$container"
 
-docker-compose logs >> $logs_file
-exit_code=$(docker inspect --format='{{.State.ExitCode}}' $test_container_name)
-
+rm -rf $logs_file
+docker-compose logs > $logs_file
+exit_code=$(docker inspect -f '{{.State.ExitCode}}' $test_container_name)
+echo exit_code = $exit_code
 exit $exit_code
