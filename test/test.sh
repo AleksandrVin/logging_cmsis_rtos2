@@ -15,10 +15,17 @@ logs_file="logs.txt"
 compose_file="compose.yaml"
 service_name="test"
 container="run_tests-1"
-test_container_name="$service_name_$container"
+test_container_name="$service_name"_"$container"
+test_container_name_alternative="$service_name"-"$container"
 
 rm -rf $logs_file
 docker-compose logs > $logs_file
+
+set +e
+
 exit_code=$(docker inspect -f '{{.State.ExitCode}}' $test_container_name)
+if [ -z $exit_code ]; then
+    exit_code=$(docker inspect -f '{{.State.ExitCode}}' $test_container_name_alternative)
+fi
 echo exit_code = $exit_code
 exit $exit_code
