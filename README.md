@@ -4,6 +4,10 @@ Logging library for cmsis_rtos2 operating system with delayed logging ability
 This library helps to create redundant logging facility on stm32 microcontrollers with cmsis_rtos2 operating system.
 Algorithm is based on simplified printk function from linux kernel. It uses ring buffer to store log messages
 
+This library meant to be used with uart or virtual com port interface, but can be easily adapted to other interfaces
+Special attention was paid to ensure that when usb_cdc interface is used, logging thread will block until transaction is completed
+if it is configured to do so.
+
 ## How to use
 
 1. Update makefile to logging.h file in your project
@@ -24,3 +28,13 @@ Tests are executed using [qemu-stm32](https://github.com/beckus/qemu_stm32) impl
 [Other qemu examples](https://github.com/beckus/stm32_p103_demos/tree/master)
 
 This approach is quite tricky and might produce wrong results, though it is suitable for basic evaluation. 
+
+### Running test on qemu
+
+```bash
+cd test
+./test.sh
+```
+
+This script will compile test project with logging library. Start it in qemu emulator, then output from virtual uart 
+will be verified with python script
