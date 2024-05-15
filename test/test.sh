@@ -15,7 +15,7 @@ logs_file="logs.txt"
 compose_file="compose.yaml"
 service_name="test"
 container="run_tests-1"
-test_container_name="$service_name-$container"
+test_container_name="$service_name_$container"
 
 rm -rf $logs_file
 docker-compose logs > $logs_file
