@@ -1,4 +1,4 @@
-# Библиотека логирования для STM32 с использованием RTOS
+# Структура статьи о библиотеке логирования для STM32 с использованием RTOS
 
 ## Введение
 
@@ -7,6 +7,49 @@
 Цель данной статьи — познакомить вас с библиотекой логирования для STM32, разработанной с использованием RTOS FreeRTOS. Эта библиотека упрощает процесс отладки RTOS-приложений, предоставляя удобные инструменты для вывода и управления логами. Хотя решение не рассчитано на корпоративный уровень, оно уже доказало свою эффективность в различных проектах, ускоряя процесс разработки и повышая качество конечного продукта. Благодаря использованию функций FreeRTOS, библиотеку легко адаптировать под другие микроконтроллеры, изменив методы взаимодействия с периферией.
 
 Мы рассмотрим основные возможности библиотеки, её архитектуру и интеграцию с FreeRTOS, а также преимущества использования данного решения в ваших проектах. Примеры кода и подробные объяснения помогут легко интегрировать библиотеку в проекты на STM32 и использовать её функционал для эффективной отладки и мониторинга приложений.
+
+## Пример выводимых логов
+
+Для лучшего понимания работы библиотеки логирования приведем пример вывода логов и соответствующую функцию, генерирующую эти логи.
+
+```json
+[DEBUG_ALL][0s.922]: Logging inited
+[INFO     ][5s.922]: I'm alive every 5 seconds from default task
+[INFO     ][10s.922]: I'm alive every 5 seconds from default task
+[INFO     ][15s.922]: I'm alive every 5 seconds from default task
+```
+
+### Функция генерации логов
+
+```c
+/* USER CODE END Header_StartDefaultTask */
+void StartDefaultTask(void *argument)
+{
+  /* init code for USB_DEVICE */
+  MX_USB_DEVICE_Init();
+  /* USER CODE BEGIN StartDefaultTask */
+  logging_init();
+  LOG(DEBUG_ALL, "Logging inited");
+  /* Infinite loop */
+  for (;;)
+  {
+    osDelay(DEFAULT_TASK_DELAY);
+    // мигание зеленым светодиодом
+    HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
+
+    LOG(INFO, "I'm alive every 5 seconds from default task");
+  }
+  /* USER CODE END StartDefaultTask */
+}
+```
+
+В данном примере:
+
+1. **Инициализация логирования**: Вызов `logging_init()` подготавливает библиотеку к работе.
+2. **Логирование инициализации**: `LOG(DEBUG_ALL, "Logging inited");` выводит сообщение о инициализации системы логирования.
+3. **Бесконечный цикл**: Каждые 5 секунд происходит задержка с помощью `osDelay(DEFAULT_TASK_DELAY)`, мигание светодиода и вывод информационного сообщения о состоянии задачи.
+
+Этот пример демонстрирует, как легко интегрировать библиотеку логирования в основную задачу приложения и получать понятные и структурированные лог-сообщения для мониторинга работы системы.
 
 ## Обзор библиотеки логирования
 
@@ -111,7 +154,7 @@ int main(void)
 
 Для потокобезопасности при записи и чтении логов библиотека использует мьютексы и семафоры FreeRTOS. Это гарантирует, что доступ к общим ресурсам не приведет к конфликтам или повреждению данных при одновременном обращении из разных задач или прерываний.
 
-- **Мьютексы (`interface_mutex`, `logs_mutex`)**: 
+- **Мьютексы (`interface_mutex`, `logs_mutex`)**:
   - `interface_mutex` защищает доступ к интерфейсам вывода логов (например, UART или USB), обеспечивая, что только одна задача или прерывание может одновременно отправлять данные.
   - `logs_mutex` защищает внутренние структуры данных библиотеки, такие как буферы логов, предотвращая одновременное изменение данных несколькими задачами.
 
@@ -119,7 +162,7 @@ int main(void)
   - `logs_semaphore_store` синхронизирует процесс записи логов в буфер, обеспечивая последовательную запись без пропусков.
   - `logs_semaphore_print` управляет выводом логов через выбранный интерфейс, гарантируя корректный и упорядоченный вывод сообщений.
 
-```c:lib/logging.c
+```c
 #include "logging.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -172,7 +215,7 @@ osThreadAttr_t loggingTask_attributes = {
   
   Эта задача отвечает за прием логовых сообщений, их буферизацию и вывод через выбранный интерфейс. Низкий приоритет задачи гарантирует, что она не будет мешать критическим задачам приложения, обеспечивая стабильную работу логирования.
 
-```c:lib/logging.c
+```c
 typedef StaticTask_t osStaticThreadDef_t;
 
 osThreadId_t loggingTaskHandle;
@@ -186,7 +229,7 @@ osThreadAttr_t loggingTask_attributes = {
 
 Библиотека использует циклические буферы для эффективного управления памятью и предотвращения потери данных при высоком объёме логов.
 
-```c:lib/logging.c
+```c
 char log_circular_buf[LOG_QUEUE_ROWS][LOG_BUFFER_SIZE] = {0};
 uint32_t log_time_buf[LOG_QUEUE_ROWS] = {0};
 uint32_t log_time_ms_buf[LOG_QUEUE_ROWS] = {0};
@@ -204,7 +247,7 @@ int logs_head = 0;
   - `log_isr_time`, `log_isr_time_ms`: Время создания логовых сообщений из ISR.
   - `log_isr_level`: Уровень логирования для сообщений из ISR.
 
-```c:lib/logging.c
+```c
 int log_isr_set = 0;
 uint32_t log_isr_time = 0;
 uint32_t log_isr_time_ms = 0;
@@ -213,7 +256,7 @@ int log_isr_level = 0;
 
 - **Функции логирования из ISR**:
 
-```c:lib/logging.h
+```c
 #define LOG_ISR(level, ...)                                      \
     if (level >= LOGGING_LEVEL)                                  \
     {                                                            \
@@ -232,39 +275,41 @@ int log_isr_level = 0;
 
     Программное обеспечение микроконтроллера ожидает открытия виртуального COM-порта на ПК, а также готовности CDC-драйвера к приему данных. Это гарантирует, что логи, генерируемые в первые миллисекунды работы прошивки, будут захвачены и доставлены. В противном случае, из-за задержки инициализации виртуального COM-порта USB, соответствующие логи могут быть потеряны.
 
-```c:lib/logging_usb.h
-// additional include for USB logging
-#include "usbd_cdc_if.h"
-#include "usb_device.h"
+```c
 
-#define INTERFACE_CDC_BUFFER_SIZE 200
+// additional include for USB logging
+# include "usbd_cdc_if.h"
+# include "usb_device.h"
+
+# define INTERFACE_CDC_BUFFER_SIZE 200
 
 extern char CDC_USB_RX_BUF[INTERFACE_CDC_BUFFER_SIZE];
 extern char CDC_USB_TX_BUF[INTERFACE_CDC_BUFFER_SIZE];
 
-#define CDC_WAIT_FOR_PC_TO_READ 1
+# define CDC_WAIT_FOR_PC_TO_READ 1
 
-#define INTERFACE_printf(FATAL_FLAG, ...)                                           \
+# define INTERFACE_printf(FATAL_FLAG, ...)                                           \
     while (CDC_IsBusy() == USBD_BUSY && CDC_WAIT_FOR_PC_TO_READ == 1)   \
     {                                                                   \
         osThreadYield();                                                \
     }                                                                   \
     CDC_Transmit_FS((uint8_t *)CDC_USB_TX_BUF,                          \
-                    snprintf(CDC_USB_TX_BUF, INTERFACE_CDC_BUFFER_SIZE, __VA_ARGS__));
-    ```
+                    snprintf(CDC_USB_TX_BUF, INTERFACE_CDC_BUFFER_SIZE, **VA_ARGS**));
+```
 
 2. **Ожидание чтения ПК**
 
     При высоком объёме логирования функция логирования будет блокироваться до тех пор, пока в циклическом буфере не освободится место. Это обеспечивает сохранность всех логов и предотвращает их потерю даже при интенсивном журналировании.
 
-    ```c:lib/logging_usb.h
-#define INTERFACE_printf(FATAL_FLAG, ...)                                           \
+```c
+
+# define INTERFACE_printf(FATAL_FLAG, ...)                                           \
     while (CDC_IsBusy() == USBD_BUSY && CDC_WAIT_FOR_PC_TO_READ == 1)   \
     {                                                                   \
         osThreadYield();                                                \
     }                                                                   \
     CDC_Transmit_FS((uint8_t *)CDC_USB_TX_BUF,                          \
-                    snprintf(CDC_USB_TX_BUF, INTERFACE_CDC_BUFFER_SIZE, __VA_ARGS__));
+                    snprintf(CDC_USB_TX_BUF, INTERFACE_CDC_BUFFER_SIZE, **VA_ARGS**));
 ```
 
 Эти функции совместно обеспечивают надёжное и эффективное логирование через USB CDC, позволяя разработчикам легко отслеживать работу системы в реальном времени без риска потери данных.
@@ -281,19 +326,21 @@ extern char CDC_USB_TX_BUF[INTERFACE_CDC_BUFFER_SIZE];
 
 - **ISR-режим**: Предназначен для логирования внутри прерываний. Этот режим позволяет быстро записывать логи из ISR, однако не поддерживает буферизацию, что может привести к потере данных при интенсивном журналировании.
 
-```c:lib/logging.h
-#define LOG_ISR(level, ...)                                      \
+```c
+
+# define LOG_ISR(level, ...)                                      \
     if (level >= LOGGING_LEVEL)                                  \
     {                                                            \
-        snprintf(LOGGING_ISR_BUF, LOG_BUFFER_SIZE, __VA_ARGS__); \
+        snprintf(LOGGING_ISR_BUF, LOG_BUFFER_SIZE, **VA_ARGS**); \
         log_ISR(LOGGING_ISR_BUF, UPTIME_S, UPTIME_MS, level);    \
     }
 ```
 
 - **Фатальный режим**: Предоставляет механизм логирования в случае критических ошибок, когда RTOS не может продолжать работу. В этом режиме логирование служит последним средством для вывода информации перед перезагрузкой или остановкой системы.
 
-```c:lib/logging.h
-#define LOG_FATAL(...) INTERFACE_printf(FATAL_FLAG_SET, __VA_ARGS__)
+```c
+
+# define LOG_FATAL(...) INTERFACE_printf(FATAL_FLAG_SET, **VA_ARGS**)
 ```
 
 Эти режимы обеспечивают надежное логирование в различных сценариях эксплуатации системы, позволяя сохранять критическую информацию даже в условиях ограниченных ресурсов или при отказе основных компонентов.
