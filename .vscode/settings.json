@@ -1,6 +1,7 @@
 {
     "files.associations": {
-        "string.h": "c"
+        "string.h": "c",
+        "cmsis_os2.h": "c"
     },
     "cSpell.language": "en,ru"
 }
