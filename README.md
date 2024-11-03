@@ -1,4 +1,5 @@
 # logging_cmsis_rtos2
+
 Logging library for cmsis_rtos2 operating system with delayed logging ability
 
 This library helps to create redundant logging facility on stm32 microcontrollers with cmsis_rtos2 operating system.
@@ -14,15 +15,15 @@ if it is configured to do so.
 2. Update makefile to include logging.c file location in your project
 3. Resolve logging.h file dependencies in your project
 4. If necessary provide your own print function for your custom interface. This function must block until transaction is completed
-6. Configure defines in logging.h for your needs
-8. Call logging_init() function before any logging function call
+5. Configure defines in logging.h for your needs
+6. Call logging_init() function before any logging function call
 
 ## This is low level library
 
 Logging thread runs with minimum priority. It means that logging thread will not be able to log messages if there is no free CPU time.
 It is recommended to use mutexes, semaphores, queues and other synchronization primitives to avoid deadlocks and free some time for logging.
 
-## Tests 
+## Tests
 
 Tests are executed using [qemu-stm32](https://github.com/beckus/qemu_stm32) implementation. 
 [Other qemu examples](https://github.com/beckus/stm32_p103_demos/tree/master)
