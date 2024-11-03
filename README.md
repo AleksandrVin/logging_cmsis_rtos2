@@ -2,6 +2,10 @@
 
 Logging library for cmsis_rtos2 operating system with delayed logging ability
 
+## About
+
+[About](about.md)
+
 This library helps to create redundant logging facility on stm32 microcontrollers with cmsis_rtos2 operating system.
 Algorithm is based on simplified printk function from linux kernel. It uses ring buffer to store log messages
 
