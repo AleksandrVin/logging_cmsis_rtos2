@@ -11,7 +11,7 @@ cp -r ../lib/ tests_stm32/logging_cmsis_rtos2
 # start docker container
 docker compose up --build
 
-logs_file="logs.txt"
+logs_file="logs/logs.txt"
 compose_file="compose.yaml"
 service_name="test"
 container="run_tests"

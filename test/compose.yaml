@@ -23,4 +23,6 @@ services:
     ports:
       - "3333:3333"
       - "7777:7777"
+    volumes:
+      - ./logs/:/test/logs
     image: run_tests

@@ -1,12 +1,27 @@
 import sys
 import re
 
+class SerialWrapper:
+    def __init__(self, serial_device):
+        self.serial = open(serial_device, 'rb+', buffering=0)
+        self.output_file = open('./logs/serial_output.txt', 'w')
+    
+    def readline(self):
+        output = self.serial.readline().decode('utf-8')
+        self.output_file.write(output)
+        self.output_file.flush()
+        return output
+    
+    def close(self):
+        self.serial.close()
+        self.output_file.close()
+
 def test_logging_basic_test(ser):
     # Read the output from the serial port until new line is found
 
     # Verify the expected prints from the MC
     for i in range(100):
-        output = ser.readline().decode('utf-8')
+        output = ser.readline()
         #  match this pattern like this  "[INFO     ][0s.87]: basic_test_0"
         # where 0s.78 is the time in seconds and milliseconds that should be stored for analysis
         pattern = r"\[INFO\s*\]\[(\d+)s\.(\d+)\]: basic_test_(\d+)"
@@ -31,7 +46,7 @@ def test_logging_test_pack(ser):
     # Verify the expected prints from the MC
     for i in range(10):
         for j in range(10):
-            output = ser.readline().decode('utf-8')
+            output = ser.readline()
 
             #  match this pattern like this  "[INFO     ][0s.87]: pack_of_ten_ten_times_0"
             # where 0s.78 is the time in seconds and milliseconds that should be stored for analysis
@@ -52,7 +67,7 @@ def test_logging_test_pack(ser):
 
 def test_logging_different_levels(ser):
     # Verify the expected prints from the MC
-    output = ser.readline().decode('utf-8')
+    output = ser.readline()
 
     # match this pattern like this  "[DEBUG_ALL][0s.87]: name_DEBUG_ALL"
     # where 0s.78 is the time in seconds and milliseconds that should be stored for analysis
@@ -68,7 +83,7 @@ def test_logging_different_levels(ser):
     else:
         assert False, f"Output '{output}' does not match the expected pattern"
 
-    output = ser.readline().decode('utf-8')
+    output = ser.readline()
 
     # match this pattern like this  "[DEBUG_MIN][0s.87]: name_DEBUG_MIN"
     # where 0s.78 is the time in seconds and milliseconds that should be stored for analysis
@@ -84,7 +99,7 @@ def test_logging_different_levels(ser):
     else:
         assert False, f"Output '{output}' does not match the expected pattern"
 
-    output = ser.readline().decode('utf-8')
+    output = ser.readline()
 
     # match this pattern like this  "[INFO     ][0s.87]: name_INFO"
     # where 0s.78 is the time in seconds and milliseconds that should be stored for analysis
@@ -100,7 +115,7 @@ def test_logging_different_levels(ser):
     else:
         assert False, f"Output '{output}' does not match the expected pattern"
 
-    output = ser.readline().decode('utf-8')
+    output = ser.readline()
 
     # match this pattern like this  "[WARNING  ][0s.87]: name_WARNING"
     # where 0s.78 is the time in seconds and milliseconds that should be stored for analysis
@@ -116,7 +131,7 @@ def test_logging_different_levels(ser):
     else:
         assert False, f"Output '{output}' does not match the expected pattern"
 
-    output = ser.readline().decode('utf-8')
+    output = ser.readline()
 
     # match this pattern like this  "[ERR      ][0s.87]: name_ERR"
     # where 0s.78 is the time in seconds and milliseconds that should be stored for analysis
@@ -142,7 +157,7 @@ def test_logging_fatal(ser):
     pattern = r"fatal_(\d+)"
 
     for i in range(10):
-        output = ser.readline().decode('utf-8')
+        output = ser.readline()
         match = re.match(pattern, output)
 
         if match:
@@ -169,7 +184,7 @@ def test_logging_multiple_threads(ser, threads=10):
 
     # Read the output from the serial port until new line is found
     for run in range(threads * 10):
-        output = ser.readline().decode('utf-8')
+        output = ser.readline()
 
         print(output)
         if not output:
@@ -191,7 +206,7 @@ def test_logging_multiple_threads(ser, threads=10):
 # look for ISR log message
 def test_logging_isr(ser):
     # Verify the expected prints from the MC
-    output = ser.readline().decode('utf-8')
+    output = ser.readline()
 
     # match this pattern like this  "[INFO     ][0s.87]ISR: LOG_ISR_9" 
     # only last one will be printed out of 10 logs
@@ -214,20 +229,20 @@ def test_logging_isr(ser):
 # run all test one by one
 def test_logging_test():
     # get serial device path from first argument
-    ser = None
     if len(sys.argv) > 1:
         serial_device = sys.argv[1]
-        ser = open(serial_device, 'rb+', buffering=0)
+        ser = SerialWrapper(serial_device)
     else:
         exit(1)
-        
-    test_logging_basic_test(ser)
-    test_logging_test_pack(ser)
-    test_logging_different_levels(ser)
-    test_logging_fatal(ser)
-    test_logging_isr(ser)
-    #test_logging_multiple_threads(ser, threads=3)
-
-    ser.close()
+    
+    try:
+        test_logging_basic_test(ser)
+        test_logging_test_pack(ser)
+        test_logging_different_levels(ser)
+        test_logging_fatal(ser)
+        test_logging_isr(ser)
+        #test_logging_multiple_threads(ser, threads=3)
+    finally:
+        ser.close()
 
 test_logging_test()

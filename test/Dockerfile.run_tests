@@ -1,5 +1,5 @@
-FROM tests:latest as firmware
-FROM qemu_stm32:latest as emulator
+FROM tests:latest AS firmware
+FROM qemu_stm32:latest AS emulator
 
 COPY --from=firmware /toolkit/ /toolkit/ 
 COPY --from=firmware /app/build/tests_stm32.bin /app/firmware.bin

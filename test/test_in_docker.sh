@@ -17,7 +17,9 @@ while [ ! -e $SERIAL_DEVICE ]; do
     sleep 0.1s
 done
 
-# cat $SERIAL_DEVICE
+# create logs directory
+mkdir -p /test/logs
+chmod a+rw /test/logs
 
 # print serial from /dev/pts/0 to console
 python3 verify_output.py $SERIAL_DEVICE
