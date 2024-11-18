@@ -4,7 +4,7 @@ Logging library for cmsis_rtos2 operating system with delayed logging ability
 
 ## About
 
-[About](about.md)
+[About](articles/about_lib.md)
 
 This library helps to create redundant logging facility on stm32 microcontrollers with cmsis_rtos2 operating system.
 Algorithm is based on simplified printk function from linux kernel. It uses ring buffer to store log messages
@@ -28,6 +28,8 @@ Logging thread runs with minimum priority. It means that logging thread will not
 It is recommended to use mutexes, semaphores, queues and other synchronization primitives to avoid deadlocks and free some time for logging.
 
 ## Tests
+
+[About tests](articles/about_test.md)
 
 Tests are executed using [qemu-stm32](https://github.com/beckus/qemu_stm32) implementation. 
 [Other qemu examples](https://github.com/beckus/stm32_p103_demos/tree/master)
