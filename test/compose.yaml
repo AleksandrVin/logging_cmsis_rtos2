@@ -25,4 +25,5 @@ services:
       - "7777:7777"
     volumes:
       - ./logs/:/test/logs
+      - ./elf/:/elf
     image: run_tests

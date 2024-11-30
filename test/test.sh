@@ -8,17 +8,21 @@ set -e
 rm -rf tests_stm32/logging_cmsis_rtos2
 cp -r ../lib/ tests_stm32/logging_cmsis_rtos2
 
-# start docker container
-docker compose up --build
-
-logs_file="logs/logs.txt"
+logs_dir="logs"
+logs_file="$logs_dir/logs.txt"
 compose_file="compose.yaml"
 service_name="test"
 container="run_tests"
 test_container_name="$service_name"_"$container"_1
 test_container_name_alternative="$service_name"-"$container"-1
 
-rm -rf $logs_file
+rm -rf $logs_dir
+rm -rf tests_stm32/build/
+
+# start docker container
+docker compose up --build
+
+# folder will be created by docker compose
 docker compose logs > $logs_file
 
 set +e

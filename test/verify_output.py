@@ -241,7 +241,7 @@ def test_logging_test():
         test_logging_different_levels(ser)
         test_logging_fatal(ser)
         test_logging_isr(ser)
-        #test_logging_multiple_threads(ser, threads=3)
+        test_logging_multiple_threads(ser, threads=3)
     finally:
         ser.close()
 

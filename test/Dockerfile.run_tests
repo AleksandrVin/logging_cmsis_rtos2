@@ -3,6 +3,7 @@ FROM qemu_stm32:latest AS emulator
 
 COPY --from=firmware /toolkit/ /toolkit/ 
 COPY --from=firmware /app/build/tests_stm32.bin /app/firmware.bin
+COPY --from=firmware /app/build/tests_stm32.elf /app/firmware.elf
 
 # files for debugging
 COPY --from=firmware /app/ /app/source
@@ -15,12 +16,5 @@ WORKDIR /test
 COPY test_in_docker.sh ./
 COPY verify_output.py ./
 
-# with debug. This will not work without gdb connected
-#ENTRYPOINT ["qemu-system-arm", "-nographic", "-M", "stm32-f103c8", "-gdb", "tcp::3333", "-S", "-kernel", "/app/firmware.bin", \
-#            "-serial", "pty"]
-
-# without debug
-# ENTRYPOINT ["qemu-system-arm", "-nographic", "-M", "stm32-f103c8", "-kernel", "/app/firmware.bin", \
-#           "-serial", "pty"]
-
-ENTRYPOINT [ "./test_in_docker.sh" ]
+# Set ENTRYPOINT to the script
+ENTRYPOINT [ "./test_in_docker.sh", "gdb" ]
