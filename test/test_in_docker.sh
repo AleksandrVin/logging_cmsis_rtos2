@@ -53,5 +53,7 @@ fi
 # Run the output verification script
 python3 verify_output.py "$SERIAL_DEVICE"
 
-# Wait for QEMU to exit
-wait "$QEMU_PID"
+if [ "$1" == "gdb" ]; then
+    echo "Waiting for GDB to finish..."
+    wait
+fi

@@ -17,4 +17,4 @@ COPY test_in_docker.sh ./
 COPY verify_output.py ./
 
 # Set ENTRYPOINT to the script
-ENTRYPOINT [ "./test_in_docker.sh", "gdb" ]
+ENTRYPOINT [ "./test_in_docker.sh" ]

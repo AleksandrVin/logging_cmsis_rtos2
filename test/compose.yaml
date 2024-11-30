@@ -13,17 +13,24 @@ services:
       - tests
     image: qemu_stm32
 
-  run_tests:
+  run_tests: &run_tests
     build:
       context: .
       dockerfile: Dockerfile.run_tests
     depends_on:
       - qemu_stm32
       - tests
-    ports:
-      - "3333:3333"
-      - "7777:7777"
     volumes:
       - ./logs/:/test/logs
       - ./elf/:/elf
+    profiles:
+      - test
     image: run_tests
+
+  gdb:
+    <<: *run_tests
+    ports:
+      - "3333:3333"
+    profiles:
+      - gdb
+    entrypoint: ["./test_in_docker.sh", "gdb"]

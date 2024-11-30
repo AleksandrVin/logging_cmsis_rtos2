@@ -196,11 +196,6 @@ def test_logging_multiple_threads(ser, threads=10):
             log_message = match.group(2)
             logs[names[thread_number]].append(log_message)
 
-    # Print the logs in a table format
-    print("Thread Logs:")
-    for name, log_messages in logs.items():
-        print(f"{name}: {log_messages}")
-
     print("Test logging multiple threads passed")
 
 # look for ISR log message
@@ -241,7 +236,7 @@ def test_logging_test():
         test_logging_different_levels(ser)
         test_logging_fatal(ser)
         test_logging_isr(ser)
-        test_logging_multiple_threads(ser, threads=3)
+        test_logging_multiple_threads(ser, threads=10)
     finally:
         ser.close()
 

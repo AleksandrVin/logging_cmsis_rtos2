@@ -8,13 +8,14 @@
             "name": "QEMU ARM Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/path/to/your/firmware.elf",
-            "miDebuggerPath": "/toolkit/arm-none-eabi/bin/arm-none-eabi-gdb",
+            "program": "${workspaceFolder}/test/elf/firmware.elf",
+            "miDebuggerPath": "/home/alek/TQ/fw/arm_none_eabi/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gdb",
             "miDebuggerServerAddress": "localhost:3333",
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/",
             "externalConsole": false,
             "targetArchitecture": "arm",
             "MIMode": "gdb",
+            "stopAtEntry": true,
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -26,12 +27,6 @@
                     "text": "set disassembly-flavor intel",
                     "ignoreFailures": true
                 }
-            ],
-            "preLaunchTask": "build",
-            "postRemoteConnectCommands": [
-                "monitor reset halt",
-                "load",
-                "monitor reset init"
             ],
             "logging": {
                 "engineLogging": false,

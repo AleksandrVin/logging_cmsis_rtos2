@@ -45,3 +45,19 @@ cd test
 
 This script will compile test project with logging library. Start it in qemu emulator, then output from virtual uart 
 will be verified with python script
+
+### Running test in gdb mode
+
+```bash
+cd test
+./start_qemu_gdb_mode.sh
+```
+
+Then connect to gdb server with gdb client
+
+```bash
+cd test/tests_stm32
+make gdb
+```
+
+>> gdb will use firmware.elf file from elf folder, exported there by docker after building test image
