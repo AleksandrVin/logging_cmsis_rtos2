@@ -23,7 +23,7 @@ rm -rf tests_stm32/build/
 docker compose --profile test up --build
 
 # folder will be created by docker compose
-docker compose logs > $logs_file
+docker compose logs $container > $logs_file
 
 set +e
 
