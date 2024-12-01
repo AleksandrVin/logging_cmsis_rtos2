@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}/test/elf/firmware.elf",
             "miDebuggerPath": "/home/alek/TQ/fw/arm_none_eabi/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gdb",
             "miDebuggerServerAddress": "localhost:3333",
-            "cwd": "${workspaceFolder}/",
+            "cwd": "${workspaceFolder}/test/tests_stm32",
             "externalConsole": false,
             "targetArchitecture": "arm",
             "MIMode": "gdb",
@@ -25,6 +25,10 @@
                 {
                     "description": "Set Disassembly Flavor to Intel",
                     "text": "set disassembly-flavor intel",
+                    "ignoreFailures": true
+                },
+                {
+                    "text": "monitor gdb_set_thread_list_enabled 1",
                     "ignoreFailures": true
                 }
             ],
