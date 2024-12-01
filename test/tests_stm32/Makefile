@@ -152,6 +152,8 @@ ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2
 endif
 
+# Add debug prefix map to make paths relative
+CFLAGS += -fdebug-prefix-map=$(PWD)=.
 
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
