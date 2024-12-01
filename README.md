@@ -4,7 +4,7 @@ Logging library for cmsis_rtos2 operating system with delayed logging ability
 
 ## About
 
-[About](about.md)
+[About](articles/about_lib.md)
 
 This library helps to create redundant logging facility on stm32 microcontrollers with cmsis_rtos2 operating system.
 Algorithm is based on simplified printk function from linux kernel. It uses ring buffer to store log messages
@@ -29,6 +29,8 @@ It is recommended to use mutexes, semaphores, queues and other synchronization p
 
 ## Tests
 
+[About tests](articles/about_test.md)
+
 Tests are executed using [qemu-stm32](https://github.com/beckus/qemu_stm32) implementation. 
 [Other qemu examples](https://github.com/beckus/stm32_p103_demos/tree/master)
 
@@ -43,3 +45,19 @@ cd test
 
 This script will compile test project with logging library. Start it in qemu emulator, then output from virtual uart 
 will be verified with python script
+
+### Running test in gdb mode
+
+```bash
+cd test
+./start_qemu_gdb_mode.sh
+```
+
+Then connect to gdb server with gdb client
+
+```bash
+cd test/tests_stm32
+make gdb
+```
+
+>> gdb will use firmware.elf file from elf folder, exported there by docker after building test image

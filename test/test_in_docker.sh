@@ -2,22 +2,58 @@
 
 set -e
 
-SERIAL_DEVICE=/dev/pts/0
+ELF_FOR_GDB=/elf/firmware.elf
+mkdir -p /elf
+cp -v /app/firmware.elf $ELF_FOR_GDB
+chmod a+r $ELF_FOR_GDB
 
-# start qemu in background 
-qemu-system-arm -nographic -M stm32-f103c8 -kernel /app/firmware.bin -serial pty  &
+# Default QEMU flags for normal test mode
+QEMU_FLAGS=(
+    "-nographic"
+    "-M" "stm32-f103c8"
+    "-kernel" "/app/firmware.bin"
+    "-serial" "pty"
+)
+
+# Check if the first argument is "gdb"
+if [ "$1" == "gdb" ]; then
+    QEMU_FLAGS+=(
+        "-gdb" "tcp::3333"
+        "-S"
+    )
+    echo "Starting QEMU in GDB debug mode..."
+else
+    echo "Starting QEMU in normal test mode..."
+fi
+
+# Launch QEMU in background
+qemu-system-arm "${QEMU_FLAGS[@]}" &
 QEMU_PID=$!
 
-# wait until serial device is register and qemu is running
-while [ ! -e $SERIAL_DEVICE ]; do
-    if ! kill -0 $QEMU_PID 2>/dev/null; then
-        echo "QEMU exited"
+SERIAL_DEVICE=/dev/pts/0
+
+# Wait until serial device is registered and QEMU is running
+while [ ! -e "$SERIAL_DEVICE" ]; do
+    if ! kill -0 "$QEMU_PID" 2>/dev/null; then
+        echo "QEMU exited unexpectedly."
         exit 1
     fi
     sleep 0.1s
 done
 
-# cat $SERIAL_DEVICE
+# Create logs directory
+mkdir -p /test/logs
+chmod a+rw /test/logs
 
-# print serial from /dev/pts/0 to console
-python3 verify_output.py $SERIAL_DEVICE
+# If running in debug mode, notify the user to connect GDB
+if [ "$1" == "gdb" ]; then
+    echo "QEMU is waiting for GDB to connect on port 3333..."
+fi
+
+# Run the output verification script
+python3 verify_output.py "$SERIAL_DEVICE"
+
+if [ "$1" == "gdb" ]; then
+    echo "Waiting for GDB to finish..."
+    wait
+fi

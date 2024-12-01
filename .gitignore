@@ -54,3 +54,5 @@ dkms.conf
 # Local files for testing
 test/tests_stm32/logging_cmsis_rtos2/
 test/logs.txt
+test/logs/
+test/elf/

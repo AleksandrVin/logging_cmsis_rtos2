@@ -1,6 +1,6 @@
 # building stm32 application
 
-FROM ubuntu:22.04 as build
+FROM ubuntu:22.04 AS build
 
 RUN apt update \
     && apt install -y \

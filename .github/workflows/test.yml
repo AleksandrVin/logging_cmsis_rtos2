@@ -10,14 +10,15 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Run test
       run: cd test && ./test.sh
 
-    - name: Archive test results
-      if: always()
+    - name: Archive test results and logs output
       uses: actions/upload-artifact@v4
       with:
-        name: log
-        path: ./test/logs.txt
+        name: combined_logs
+        path: |
+          ./test/logs/logs.txt
+          ./test/logs/serial_output.txt
