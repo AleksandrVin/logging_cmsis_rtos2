@@ -61,3 +61,7 @@ make gdb
 ```
 
 >> gdb will use firmware.elf file from elf folder, exported there by docker after building test image
+
+### Rtos runtime stats
+
+[Rtos runtime stats](https://www.freertos.org/Documentation/02-Kernel/02-Kernel-features/08-Run-time-statistics.html)
