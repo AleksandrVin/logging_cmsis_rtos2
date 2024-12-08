@@ -64,4 +64,4 @@ make gdb
 
 ### Rtos runtime stats
 
-[Rtos runtime stats](https://www.freertos.org/Documentation/02-Kernel/02-Kernel-features/08-Run-time-statistics.html)
+[Rtos runtime stats](https://www.freertos.org/Documentation/02-Kernel/02-Kernel-features/08-Run-time-statistics)
