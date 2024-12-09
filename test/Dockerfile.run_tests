@@ -2,8 +2,8 @@ FROM tests:latest AS firmware
 FROM qemu_stm32:latest AS emulator
 
 COPY --from=firmware /toolkit/ /toolkit/ 
-COPY --from=firmware /app/build/tests_stm32.bin /app/firmware.bin
-COPY --from=firmware /app/build/tests_stm32.elf /app/firmware.elf
+COPY --from=firmware /app/build/test_project.bin /app/firmware.bin
+COPY --from=firmware /app/build/test_project.elf /app/firmware.elf
 
 # files for debugging
 COPY --from=firmware /app/ /app/source

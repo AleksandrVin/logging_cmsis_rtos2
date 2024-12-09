@@ -56,8 +56,12 @@ cd test
 Then connect to gdb server with gdb client
 
 ```bash
-cd test/tests_stm32
+cd test/test_project
 make gdb
 ```
 
 >> gdb will use firmware.elf file from elf folder, exported there by docker after building test image
+
+### Rtos runtime stats
+
+[Rtos runtime stats](https://www.freertos.org/Documentation/02-Kernel/02-Kernel-features/08-Run-time-statistics)

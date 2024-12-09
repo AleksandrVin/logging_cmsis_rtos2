@@ -52,7 +52,7 @@ Mkfile.old
 dkms.conf
 
 # Local files for testing
-test/tests_stm32/logging_cmsis_rtos2/
+test/test_project/logging_cmsis_rtos2/
 test/logs.txt
 test/logs/
 test/elf/
