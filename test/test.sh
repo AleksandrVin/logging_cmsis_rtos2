@@ -6,7 +6,6 @@
 set -e
 
 rm -rf test_project/logging_cmsis_rtos2
-mkdir -p test_project/logging_cmsis_rtos2
 cp -r ../lib/ test_project/logging_cmsis_rtos2
 
 logs_dir="logs"
