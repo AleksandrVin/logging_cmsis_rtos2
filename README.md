@@ -56,7 +56,7 @@ cd test
 Then connect to gdb server with gdb client
 
 ```bash
-cd test/tests_stm32
+cd test/test_project
 make gdb
 ```
 

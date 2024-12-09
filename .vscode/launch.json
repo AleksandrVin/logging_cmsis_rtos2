@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}/test/elf/firmware.elf",
             "miDebuggerPath": "/home/alek/TQ/fw/arm_none_eabi/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gdb",
             "miDebuggerServerAddress": "localhost:3333",
-            "cwd": "${workspaceFolder}/test/tests_stm32",
+            "cwd": "${workspaceFolder}/test/test_project",
             "externalConsole": false,
             "targetArchitecture": "arm",
             "MIMode": "gdb",
