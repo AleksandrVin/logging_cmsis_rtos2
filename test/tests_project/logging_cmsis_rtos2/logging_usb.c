@@ -1,4 +1,0 @@
-#include "logging_usb.h"
-
-char CDC_USB_RX_BUF[INTERFACE_CDC_BUFFER_SIZE] = {0};
-char CDC_USB_TX_BUF[INTERFACE_CDC_BUFFER_SIZE] = {0};
