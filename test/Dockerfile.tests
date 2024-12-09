@@ -22,6 +22,6 @@ RUN rm -rf arm-none-eabi.tar.xz
 ENV PATH="/toolkit/arm-none-eabi/bin:${PATH}"
 
 WORKDIR /app
-COPY ./tests_stm32 .
+COPY ./test_project .
 
 RUN make

@@ -5,8 +5,9 @@
 
 set -e
 
-rm -rf tests_stm32/logging_cmsis_rtos2
-cp -r ../lib/ tests_stm32/logging_cmsis_rtos2
+rm -rf test_project/logging_cmsis_rtos2
+mkdir -p test_project/logging_cmsis_rtos2
+cp -r ../lib/ test_project/logging_cmsis_rtos2
 
 logs_dir="logs"
 logs_file="$logs_dir/logs.txt"
@@ -17,7 +18,7 @@ test_container_name="$service_name"_"$container"_1
 test_container_name_alternative="$service_name"-"$container"-1
 
 rm -rf $logs_dir
-rm -rf tests_stm32/build/
+rm -rf test_project/build/
 
 # start docker container
 docker compose --profile test up --build
